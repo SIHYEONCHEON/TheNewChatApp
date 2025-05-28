@@ -14,36 +14,50 @@
         android:theme="@style/ThemeOverlay.AppCompat.Light">
 
         <!-- 로고 영역: 페이드 + parallax -->
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/logoContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:paddingTop="48dp"
             android:paddingBottom="24dp"
             android:background="@android:color/white"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+            <!-- 1) 오른쪽 최상단: 다크/라이트 토글 -->
+            <Button
+                android:id="@+id/btnThemeToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌙/☀️"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/btn_background"
+                android:textColor="@color/btn_text" />
+
+            <!-- 2) 토글 버튼 바로 아래에 로고 -->
             <ImageView
                 android:id="@+id/logoImage"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:contentDescription="memmo 로고"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/btnThemeToggle"
+                android:layout_marginTop="16dp"
                 android:src="@drawable/memmo_logo"
-                tools:visibility="visible" />
+                android:contentDescription="memmo 로고" />
 
+            <!-- 3) 로고 바로 아래에 앱 이름 -->
             <TextView
                 android:id="@+id/appNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/logoImage"
+                android:layout_centerHorizontal="true"
                 android:paddingTop="8dp"
                 android:text="전체 노트"
-                android:textAlignment="center"
                 android:textColor="#333333"
-                android:textSize="30sp"
-                tools:visibility="visible" />
-        </LinearLayout>
+                android:textSize="30sp" />
+        </RelativeLayout>
 
         <!-- 아이콘 메뉴: 로고 아래 위치, 스크롤 시 상단 고정 -->
         <LinearLayout

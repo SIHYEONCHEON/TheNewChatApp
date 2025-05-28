@@ -19,39 +19,54 @@
  * - 햄버거·검색·점3개 아이콘에 클릭 리스너 등록 (후속 기능 연결 준비)
  */
 
-
-
 package com.example.thenewchatapp
 
-import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import android.widget.Toast
+import android.widget.PopupMenu
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var titleEditText: EditText
     private lateinit var editText: EditText
     private lateinit var backButton: ImageButton
-    private lateinit var goToChatBotButton: ImageButton
-    private var saveButton: Button? = null
+    private lateinit var textViewContent: EditText
+    private lateinit var btnVoice: ImageButton
+    private lateinit var btnPlus: ImageButton
+    private lateinit var fragmentContainer: FrameLayout
 
     private val customExtension = ".mdocx"
     private var currentFileName: String? = null
+
+    companion object {
+        lateinit var prefs: SharedPreferences
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // ✅ 전역 prefs 설정 및 테마 적용
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val isDarkMode = prefs.getBoolean("dark_mode", false)
+        AppCompatDelegate.setDefaultNightMode(
+            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        textViewContent = findViewById(R.id.textViewContent)
         titleEditText = findViewById(R.id.titleEditText)
         editText = findViewById(R.id.editText)
         backButton = findViewById(R.id.backButton)
-        goToChatBotButton = findViewById(R.id.goToChatBotButton)
-//        saveButton = findViewById<Button?>(R.id.saveButton)
 
         // 챗봇 답변 내용 편집을 메인엑티비티로 변경했을 때 쓰이는 코드
         // EditText 초기화 이후 onCreate 안에 추가
@@ -61,49 +76,8 @@ class MainActivity : AppCompatActivity() {
 
         val isFromChat = intent.hasExtra("messagePosition")
 
-        saveButton?.setOnClickListener {
-            val content = editText.text.toString().trim()
-            if (content.isEmpty()) {
-                Toast.makeText(this, "입력한 내용이 없어 저장하지 않았습니다.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // ✅ ChatActivity에서 왔을 경우: 결과 반환 후 종료
-            if (intent.hasExtra("messagePosition")) {
-                val resultIntent = Intent().apply {
-                    putExtra("editedText", content)
-                    putExtra("messagePosition", intent.getIntExtra("messagePosition", -1))
-                }
-                setResult(Activity.RESULT_OK, resultIntent)
-                finish()
-                return@setOnClickListener
-            }
-
-            // ✅ 평소대로 저장
-            saveIfNeeded(forceSave = true)
-        }
-
-        // 여기까지 챗봇 답변 편집
-
-        // 이건 원래 저장 로직
-//        saveButton?.setOnClickListener {
-//            val content = editText.text.toString().trim()
-//            if (content.isEmpty()) {
-//                Toast.makeText(this, "입력한 내용이 없어 저장하지 않았습니다.", Toast.LENGTH_SHORT).show()
-//                return@setOnClickListener
-//            }
-//            saveIfNeeded(forceSave = true)
-//        }
-
         backButton.setOnClickListener {
             onBackPressed()  // ✅ 시스템 뒤로가기처럼 자동 저장 후 finish()까지 작동
-        }
-
-        goToChatBotButton.setOnClickListener {
-            val userInput = editText.text.toString().trim()
-            val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("conversation", userInput)
-            startActivity(intent)
         }
 
         val fileName = intent.getStringExtra("fileName")
@@ -117,6 +91,45 @@ class MainActivity : AppCompatActivity() {
                 editText.setText(file.readText())
                 currentFileName = fileName
             }
+        }
+
+        btnVoice = findViewById(R.id.btnVoice)
+        btnPlus = findViewById(R.id.btnPlus)
+        fragmentContainer = findViewById(R.id.fragmentContainer)
+
+        // ✅ 저장된 텍스트 불러오기 (같은 prefs 사용)
+        val savedText = prefs.getString("main_text", "")
+        textViewContent.setText(savedText)
+
+        textViewContent.setOnEditorActionListener { v, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val input = v.text.toString()
+                textViewContent.append("\n$input")
+                v.setText("")
+                true
+            } else false
+        }
+
+        btnPlus.setOnClickListener {
+            PopupMenu(this, it).apply {
+                menu.add("챗봇").setOnMenuItemClickListener {
+                    startActivity(Intent(this@MainActivity, ChatActivity::class.java))
+                    true
+                }
+                menu.add("필드 화면").setOnMenuItemClickListener {
+                    startActivity(Intent(this@MainActivity, MainFragment::class.java))
+                    true
+                }
+                show()
+            }
+        }
+
+        btnVoice.setOnClickListener {
+            Toast.makeText(
+                this,  // Activity 자체를 Context로 사용
+                "음성 인식 기능은 추후 추가됩니다.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -149,5 +162,27 @@ class MainActivity : AppCompatActivity() {
             currentFileName = saveFileName
         }
     }
-}
 
+    override fun onPause() {
+        super.onPause()
+        prefs.edit().putString("main_text", textViewContent.text.toString()).apply()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val current = supportFragmentManager.findFragmentById(R.id.editText)
+        if (current == null) {
+            btnPlus.visibility = View.VISIBLE
+            btnVoice.visibility = View.VISIBLE
+            textViewContent.visibility = View.VISIBLE
+        }
+    }
+
+    fun restoreMainUI() {
+        textViewContent.visibility = View.VISIBLE
+        btnPlus.visibility = View.VISIBLE
+        btnVoice.visibility = View.VISIBLE
+
+        fragmentContainer.visibility = View.GONE
+    }
+}

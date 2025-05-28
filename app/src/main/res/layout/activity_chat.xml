@@ -1,82 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity"
-    android:background="#ffffff">
+    android:padding="16dp">
 
-    <!-- 채팅 내용을 보여주는 RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chat_recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/input_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/chat_item" />
+    <!-- ── ① 채팅 UI 전체를 감싸는 컨테이너 (RelativeLayout!) ── -->
+    <RelativeLayout
+        android:id="@+id/chatContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-
-
-    <!-- 입력 필드 (내부의 EditText와 ImageButton은 그대로 유지) -->
-    <FrameLayout
-        android:id="@+id/input_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="10dp">
-
-        <EditText
-            android:id="@+id/message_edit"
+        <!-- 1-1) 채팅 목록: inputArea 바로 위까지 채웁니다 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/edit_background"
-            android:hint="메시지 보내기..."
-            android:paddingStart="10dp" />
+            android:layout_height="match_parent"
+            android:layout_above="@id/inputArea"
+            android:layout_alignParentTop="true"/>
 
+        <!-- 1-2) (Optional) placeholder -->
+        <FrameLayout
+            android:id="@+id/input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/inputArea"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="10dp"/>
+
+        <!-- 1-3) 입력 바: 항상 맨 아래 -->
+        <LinearLayout
+            android:id="@+id/inputArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|bottom"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_alignParentBottom="true">
+
+            <ImageButton
+                android:id="@+id/btnPlus"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_add"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/plus_button"/>
+
+            <EditText
+                android:id="@+id/editTextInput"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:hint="@string/input_hint"
+                android:background="@drawable/edit_text_background"
+                android:inputType="textMultiLine"
+                android:textColor="@color/text_main"
+                android:textColorHint="@color/hint_text"/>
+
+            <ImageButton
+                android:id="@+id/btnVoice"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_mic"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/voice_input"/>
+
+            <ImageButton
+                android:id="@+id/btnSend"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_send"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/send_message"/>
+        </LinearLayout>
+
+        <!-- 1-4) 입력 바 바로 위 우측 아래쪽: 챗 편집 버튼 -->
         <ImageButton
-            android:id="@+id/send_btn"
-            android:layout_width="55dp"
-            android:layout_height="35dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="20dp"
+            android:id="@+id/goToEditButton"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/baseline_text_snippet_24"
             android:background="@drawable/btn_background"
-            android:src="@drawable/send_icon"
-            android:scaleType="centerInside"/>
-    </FrameLayout>
+            android:contentDescription="챗 편집"
+            android:layout_above="@id/inputArea"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"/>
 
-    <ImageButton
-        android:id="@+id/goToEditButton"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        app:layout_constraintBottom_toTopOf="@id/input_layout"
+        <!-- 1-5) 입력 바 바로 위 우측 위쪽: 결과 생성 버튼 -->
+        <ImageButton
+            android:id="@+id/CreateResultButton"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/baseline_auto_awesome_24"
+            android:background="@drawable/btn_background"
+            android:contentDescription="결과 생성"
+            android:layout_above="@id/goToEditButton"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"/>
 
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/btn_background"
-        android:src="@drawable/baseline_text_snippet_24" />
+        <!-- 1-6) 기존 EasyCommand 리스트도 그대로 놔두세요 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerEasyCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/recyclerCommandEntry"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            android:background="?attr/colorSurface"
+            android:padding="8dp"
+            android:elevation="2dp"
+            android:overScrollMode="always"/>
 
-    <ImageButton
-        android:id="@+id/CreateResultButton"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginEnd="20dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerCommandEntry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/inputArea"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            android:background="?attr/colorSurface"
+            android:padding="8dp"
+            android:elevation="2dp"
+            android:overScrollMode="always"/>
+    </RelativeLayout>
+    <!-- ──────────────────────────────────────────────────────────────────── -->
 
-        android:layout_marginBottom="80dp"
-        android:background="@drawable/btn_background"
-        android:src="@drawable/baseline_auto_awesome_24"
-        app:layout_constraintBottom_toTopOf="@id/input_layout"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- ── ② 필드 화면을 띄울 빈 컨테이너 (절대 match_parent) ── -->
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+</RelativeLayout>

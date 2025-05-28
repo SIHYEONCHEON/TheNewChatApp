@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="명령어 입력"
+        android:textSize="18sp"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/editCommand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="명령어를 입력하세요"
+        android:inputType="text"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="저장" />
+
+</LinearLayout>

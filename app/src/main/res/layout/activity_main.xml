@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/combinedLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#ffffff">
+    android:background="@color/background_light"
+    android:padding="8dp">
 
-    <!-- 상단: 제목 입력 + 뒤로가기 버튼 + 저장 버튼 -->
+    <!-- 2. 제목 바: 뒤로가기 + 제목 입력 (저장 버튼 제거) -->
     <LinearLayout
+        android:id="@+id/titleBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp">
+        android:padding="8dp">
 
         <ImageButton
             android:id="@+id/backButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_arrow_back_24"
+            android:background="@android:color/transparent"
             android:contentDescription="뒤로가기"
-            android:background="@android:color/transparent"/>
+            android:src="@drawable/baseline_arrow_back_24" />
 
         <EditText
             android:id="@+id/titleEditText"
@@ -31,47 +34,74 @@
             android:hint="제목"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:background="@null"/>
-
-        <!-- 저장 버튼 (숨기려면 이 부분을 주석 처리하세요) -->
-<!--        <Button-->
-<!--            android:id="@+id/saveButton"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="저장" />-->
-
-
+            android:background="@null" />
     </LinearLayout>
 
+    <!-- 3. 구분선 -->
     <View
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#d9d9d9" />
+        android:layout_below="@id/titleBar"
+        android:background="#d9d9d9"
+        android:layout_marginTop="4dp" />
 
-
-    <!-- 본문 입력 영역 -->
+    <!-- 4. 본문 입력 영역 -->
     <EditText
         android:id="@+id/editText"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp"
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider"
+        android:layout_marginTop="12dp"
         android:hint="메모를 입력하세요"
         android:gravity="top"
         android:inputType="textMultiLine"
+        android:overScrollMode="always"
         android:scrollbars="vertical"
-        android:background="@null" />
+        android:background="@drawable/edit_text_background"
+        android:textColor="@color/text_main"
+        android:textColorHint="@color/hint_text"
+        android:padding="12dp" />
 
-    <!-- 챗봇 이동 버튼 유지 -->
-    <ImageButton
-        android:id="@+id/goToChatBotButton"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_gravity="end"
-        android:background="@drawable/btn_background"
-        android:src="@drawable/baseline_chat_24"
-        android:contentDescription="챗봇으로 이동" />
+    <!-- 6. 플로팅 버튼들: +, 음성인식 -->
+    <LinearLayout
+        android:id="@+id/floatingButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:layout_margin="16dp">
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/btnPlus"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="메뉴 열기"
+            android:background="@drawable/round_button"
+            android:layout_marginBottom="12dp"
+            app:tint="@color/btn_icon" />
+
+        <ImageButton
+            android:id="@+id/btnVoice"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_mic"
+            android:contentDescription="음성인식"
+            android:background="@drawable/round_button"
+            app:tint="@color/btn_icon" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/textViewContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

@@ -12,4 +12,25 @@
     <color name="orange">#FFFFA500</color>
     <color name="purple">#FF800080</color>
     <color name="purple2">#5950F9</color> // instagram DM 보낸 메시지 색상
+    <color name="btn_background">#FFFFFF</color>
+    <color name="btn_text">#000000</color>
+    <color name="btn_icon">#000000</color>
+    <color name="text_main">#000000</color>
+    <color name="hint_text">#888888</color>
+    <color name="background_light">#FFFFFF</color>
+    <color name="btn_icon_tint">#000000</color>
+    <color name="commandButton">#6200EE</color>
+    <color name="micButton">#03DAC5</color>
+    <color name="editTextBg">#EEEEEE</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="chip_background">#4CAF50</color>
+    <color name="chip_stroke">#388E3C</color>
+    <color name="chip_ripple">#A5D6A7</color>
+    <color name="command_text">#212121</color>
+    <color name="purple_200">#BB86FC</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_700">#616161</color>
+    <color name="text_secondary">#757575</color>
 </resources>

@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Memmo</string>
+    <string name="field_list">필드 목록</string>
+    <string name="guide_text">무엇이 궁금한가요?</string>
+    <string name="input_hint">질문을 입력하세요</string>
+    <string name="voice_input">음성 입력</string>
+    <string name="send_message">전송</string>
+    <string name="plus_button">추가기능</string>
+    <string name="easy_command_box_description">이지 커맨드 박스</string>
+    <string name="field_list_description">필드 리스트</string>
+    <string name="expand_prompt">프롬프트 확장</string>
+</resources>

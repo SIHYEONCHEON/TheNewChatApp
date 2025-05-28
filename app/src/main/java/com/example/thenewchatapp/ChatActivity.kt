@@ -1,18 +1,18 @@
-// ✅ ChatActivity.kt - 최종 통합본
-
 package com.example.thenewchatapp
 
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -26,21 +26,8 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-
-// 메시지 데이터 클래스
-
-data class ChatMessage(
-    var message: String,
-    val type: MessageType,
-    val isResult: Boolean = false
-)
-
-enum class MessageType {
-    SENT,
-    RECEIVED,
-    LOADING,
-    LOADING_RESULT // 결과 생성 전용 로딩
-}
+import androidx.activity.viewModels
+import android.widget.FrameLayout
 
 class ChatActivity : AppCompatActivity() {
 
@@ -49,9 +36,37 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var sendButton: ImageButton
     private lateinit var goToEditButton: ImageButton
     private lateinit var createResultButton: ImageButton
+    private lateinit var btnPlus: ImageButton
+    private lateinit var btnVoice: ImageButton
+    private lateinit var recyclerCategory: RecyclerView
+    private lateinit var recyclerEntry: RecyclerView
+    private val viewModel: FieldViewModel by viewModels()
+    private lateinit var chatContainer: FrameLayout
+    private lateinit var fragmentContainer: FrameLayout
 
     private val chatMessages = mutableListOf<ChatMessage>()
     private lateinit var chatAdapter: ChatAdapter
+
+    private lateinit var categoryAdapter: EasyCommandCategoryAdapter
+    private lateinit var entryAdapter: EasyCommandEntryAdapter
+
+    private val easyCommandMap = mutableMapOf(
+        "요약" to mutableListOf("간단 요약: 이 내용을 간단하게 요약해줘"),
+        "다듬기" to mutableListOf("문장 정리: 더 자연스럽게 바꿔줘"),
+        "늘리기" to mutableListOf("내용 확장: 더 길게 써줘")
+    )
+
+    private var currentCategory: String = easyCommandMap.keys.first()
+
+    private val fields = listOf(
+        Field("목적", ""), Field("주제", ""), Field("독자", ""), Field("형식 혹은 구조", ""),
+        Field("근거자료", ""), Field("어조", ""), Field("분량, 문체, 금지어 등", ""), Field("추가사항", "")
+    )
+
+    private val fieldKeys = listOf(
+        "목적","주제","독자","형식 혹은 구조",
+        "근거자료","어조","분량, 문체, 금지어 등","추가사항"
+    )
 
     private val editMessageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -72,7 +87,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         // 시스템 바/IME 패딩 처리
-        val mainView = findViewById<View>(R.id.main)
+        val mainView = findViewById<View>(R.id.mainLayout)
         ViewCompat.setOnApplyWindowInsetsListener(mainView) { v, insets ->
             val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
@@ -82,10 +97,135 @@ class ChatActivity : AppCompatActivity() {
 
         // 뷰 바인딩
         chatRecyclerView = findViewById(R.id.chat_recyclerView)
-        messageEditText = findViewById(R.id.message_edit)
-        sendButton = findViewById(R.id.send_btn)
+        messageEditText = findViewById(R.id.editTextInput)
+        sendButton = findViewById(R.id.btnSend)
         goToEditButton = findViewById(R.id.goToEditButton)
         createResultButton = findViewById(R.id.CreateResultButton)
+        btnPlus         = findViewById(R.id.btnPlus)
+        recyclerCategory= findViewById(R.id.recyclerEasyCommand)
+        recyclerEntry   = findViewById(R.id.recyclerCommandEntry)
+        btnVoice = findViewById(R.id.btnVoice)
+        chatContainer     = findViewById(R.id.chatContainer)
+        fragmentContainer = findViewById(R.id.fragmentContainer)
+
+        // ViewModel 기본 제목 초기화 (한 번만)
+        viewModel.initTitles(fieldKeys)
+
+        // **1) ViewModel에 기본 필드명 채우기**
+        val fieldKeys = fields.map { it.title }
+        viewModel.initTitles(fieldKeys)
+
+        // EasyCommand 리스트 기본 숨김
+        recyclerCategory.visibility = View.GONE
+        recyclerEntry.visibility   = View.GONE
+
+        // EditText에 포커스 생길 때만 EasyCommand 보이기
+        messageEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                recyclerCategory.visibility = View.VISIBLE
+                recyclerEntry.visibility   = View.VISIBLE
+            } else {
+                recyclerCategory.visibility = View.GONE
+                recyclerEntry.visibility   = View.GONE
+            }
+        }
+
+        // 상단 EasyCommand 카테고리
+        recyclerCategory.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        categoryAdapter = EasyCommandCategoryAdapter(
+            easyCommandMap.keys.toList(),
+            onCategoryClick = { selected ->
+                currentCategory = selected
+                updateEntryList()
+            },
+            onDeleteConfirmed = { category ->
+                easyCommandMap.remove(category)
+                refreshCategoryAdapter()
+            }
+        ).apply {
+            setOnAddCategoryClickListener { showAddCategoryDialog() }
+        }
+        recyclerCategory.adapter = categoryAdapter
+
+        // 하단 EasyCommand 엔트리
+        recyclerEntry.layoutManager = LinearLayoutManager(this)
+        entryAdapter = EasyCommandEntryAdapter(
+            entries = emptyList(),
+            onEditClick = { title, prompt -> openDetail(title, prompt) },
+            onDeleteClick = { title ->
+                easyCommandMap[currentCategory]?.removeIf { it.startsWith(title) }
+                updateEntryList()
+            },
+            onPromptClick = { prompt -> messageEditText.setText(prompt) },
+            onAddClick = { openDetail(null, null) }
+        )
+        recyclerEntry.adapter = entryAdapter
+
+        // ➕ 버튼 팝업 메뉴
+        btnPlus.setOnClickListener { anchorView ->
+            PopupMenu(this, anchorView).apply {
+                menu.add("일반 글 화면").setOnMenuItemClickListener {
+                    startActivity(Intent(this@ChatActivity, MainActivity::class.java))
+                    true
+                }
+                menu.add("필드 화면").setOnMenuItemClickListener {
+                    // 채팅 UI 숨기고
+                    chatContainer.visibility     = View.GONE
+                    // 필드 화면 보이기
+                    fragmentContainer.visibility = View.VISIBLE
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, MainFragment())
+                        .addToBackStack(null)
+                        .commit()
+                    true
+                }
+                show()
+            }
+        }
+
+        // 초기 엔트리 리스트 세팅
+        updateEntryList()
+
+        // **5+7. CommandDetailFragment에서 온 저장 결과 받기**
+        supportFragmentManager.setFragmentResultListener(
+            "easy_command_save", this
+        ) { key, bundle ->
+            val original = bundle.getString("original") ?: ""
+            val title = bundle.getString("title") ?: return@setFragmentResultListener
+            val prompt = bundle.getString("prompt") ?: return@setFragmentResultListener
+            easyCommandMap[currentCategory]?.let { commands ->       // 바깥 it → commands 로 변경
+                if (original.isNotBlank()) {
+                    commands.removeIf { entry ->                      // 중첩 람다의 it → entry 로 변경
+                        entry.startsWith("$original:")                // 문자열 템플릿 사용
+                    }
+                }
+                // 새로 추가
+                commands.add("$title:$prompt")
+            }
+
+            updateEntryList()
+        }
+
+        // 2) 루트 레이아웃 터치 시 포커스 해제
+        mainView.setOnTouchListener { v: View, event: MotionEvent ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                v.performClick()              // ← 클릭 처리(접근성용)
+            }
+            messageEditText.clearFocus()
+            false
+        }
+
+        // **1. 포커스 해제 시 숨김 (이미 구현)**
+        messageEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                recyclerCategory.visibility = View.VISIBLE
+                recyclerEntry.visibility = View.VISIBLE
+            } else {
+                recyclerCategory.visibility = View.GONE
+                recyclerEntry.visibility = View.GONE
+            }
+        }
 
         // 결과 생성 버튼 클릭
         createResultButton.setOnClickListener {
@@ -310,6 +450,60 @@ class ChatActivity : AppCompatActivity() {
                     withContext(Dispatchers.Main) { onChunk("Stream Error: ${e.message}") }
                 }
             }
+        }
+    }
+
+    private fun updateEntryList() {
+        val list = easyCommandMap[currentCategory]?.map {
+            val parts = it.split(":")
+            parts[0] to parts.getOrNull(1).orEmpty()
+        }?.toMutableList() ?: mutableListOf()
+        list.add("+" to "")
+        entryAdapter.updateList(list)
+    }
+
+    private fun refreshCategoryAdapter() {
+        categoryAdapter = EasyCommandCategoryAdapter(
+            easyCommandMap.keys.toList(),
+            categoryAdapter.onCategoryClick,
+            categoryAdapter.onDeleteConfirmed
+        ).apply { setOnAddCategoryClickListener { showAddCategoryDialog() } }
+        recyclerCategory.adapter = categoryAdapter
+        updateEntryList()
+    }
+
+    private fun showAddCategoryDialog() {
+        val input = EditText(this)
+        AlertDialog.Builder(this)
+            .setTitle("카테고리 추가")
+            .setView(input)
+            .setPositiveButton("추가") { _, _ ->
+                val name = input.text.toString().trim()
+                if (name.isNotBlank() && !easyCommandMap.containsKey(name)) {
+                    easyCommandMap[name] = mutableListOf()
+                    refreshCategoryAdapter()
+                }
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    private fun openDetail(title: String?, prompt: String?) {
+        CommandDetailFragment.newInstance(currentCategory, title, prompt)
+            .show(supportFragmentManager, "CommandDetail")
+    }
+
+    companion object {
+        fun newInstance(): FieldChatActivity = FieldChatActivity()
+    }
+
+    override fun onBackPressed() {
+        if (fragmentContainer.visibility == View.VISIBLE) {
+            supportFragmentManager.popBackStack()
+            fragmentContainer.visibility = View.GONE
+            chatContainer.visibility     = View.VISIBLE
+        } else {
+            super.onBackPressed()
         }
     }
 }

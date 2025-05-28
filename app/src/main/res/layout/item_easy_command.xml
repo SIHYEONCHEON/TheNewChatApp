@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/iconCommand"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="icon"
+        app:tint="@color/text_main" />
+
+    <TextView
+        android:id="@+id/textCommand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="명령어"
+        android:textColor="@color/text_main"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:layout_marginTop="4dp" />
+
+</LinearLayout>

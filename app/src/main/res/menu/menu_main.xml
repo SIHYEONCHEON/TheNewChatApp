@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_field_list"
+        android:title="필드 목록"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_toggle_theme"
+        android:title="테마 전환"
+        app:showAsAction="never" />
+</menu>

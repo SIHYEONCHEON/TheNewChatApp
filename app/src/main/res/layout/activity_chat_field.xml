@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- 채팅 내용을 보여주는 RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chat_recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/input_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/input_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="10dp">
+    </FrameLayout>
+
+    <!-- ① 상단 우측: 필드 드롭다운 화살표만 -->
+    <ImageButton
+        android:id="@+id/btnFieldDropdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_arrow_drop_down"
+        android:background="@null"
+        android:contentDescription="필드 선택"
+        app:tint="@color/btn_icon" />
+
+    <!-- ② (+, 입력창, 음성, 전송) 바를 맨 아래에 고정 -->
+    <LinearLayout
+        android:id="@+id/inputArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:gravity="center_vertical|bottom"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/btnPlus"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_add"
+            android:contentDescription="@string/plus_button" />
+
+        <EditText
+            android:id="@+id/editTextInput"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/input_hint"
+            android:inputType="textMultiLine"
+            android:textColor="@color/text_main"
+            android:textColorHint="@color/hint_text" />
+
+        <ImageButton
+            android:id="@+id/btnVoice"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_mic"
+            android:contentDescription="@string/voice_input" />
+
+        <ImageButton
+            android:id="@+id/btnSend"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_send"
+            android:contentDescription="@string/send_message" />
+    </LinearLayout>
+
+    <!-- ③ 챗 편집 버튼: 입력 바 바로 위 우측 아래쪽 -->
+    <ImageButton
+        android:id="@+id/goToEditButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_above="@id/inputArea"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/btn_background"
+        android:src="@drawable/baseline_text_snippet_24"
+        android:contentDescription="챗 편집" />
+
+    <!-- ④ 결과 생성 버튼: 입력 바 바로 위 우측 위쪽 -->
+    <ImageButton
+        android:id="@+id/CreateResultButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_above="@id/goToEditButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/btn_background"
+        android:src="@drawable/baseline_auto_awesome_24"
+        android:contentDescription="결과 생성" />
+
+    <!-- ③ EasyCommand 상단바 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEasyCommand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/recyclerCommandEntry"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:background="?attr/colorSurface"
+        android:padding="8dp"
+        android:elevation="2dp"
+        android:overScrollMode="always"/>
+
+    <!-- ④ EasyCommand 하단바 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerCommandEntry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/inputArea"
+        android:visibility="gone"
+        android:layout_marginTop="8dp"
+        android:background="?attr/colorSurface"
+        android:padding="8dp"
+        android:elevation="2dp"
+        android:overScrollMode="always"/>
+
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</RelativeLayout>

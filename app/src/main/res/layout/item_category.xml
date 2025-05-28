@@ -1,0 +1,44 @@
+<!-- BEFORE: orientation="horizontal" -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp">
+
+    <!-- ① 아이콘+레이블을 수직 배치 -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:id="@+id/imgCategory"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_red"
+            app:tint="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/tvCategoryLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="요약"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+    <!-- ② 삭제 버튼은 오른쪽 위에 오버레이 -->
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_gravity="end|top"
+        android:src="@drawable/ic_close"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="삭제"
+        android:visibility="visible"
+        app:tint="?attr/colorOnSurface" />
+</FrameLayout>

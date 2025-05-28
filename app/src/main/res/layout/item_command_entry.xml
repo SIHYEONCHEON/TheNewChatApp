@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- ① 제목 + 화살표 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
+
+        <ImageButton
+            android:id="@+id/btnExpand"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_expand_more"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/expand_prompt"
+            app:tint="?attr/colorOnSurface"/>
+    </LinearLayout>
+
+    <!-- ② 확장 영역: 기본 hidden -->
+    <LinearLayout
+        android:id="@+id/expandedLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical">
+
+        <!-- 내용: 3줄까지, 넘칠 땐 ellipsize -->
+        <TextView
+            android:id="@+id/textPrompt"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:scrollbars="vertical" />
+
+        <!-- 3점 메뉴 버튼 -->
+        <ImageButton
+            android:id="@+id/btnMenu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_more_vert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="메뉴"/>
+    </LinearLayout>
+</LinearLayout>

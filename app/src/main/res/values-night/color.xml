@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 다크 모드 컬러 -->
+    <color name="btn_text">#FFFFFF</color>
+    <color name="btn_background">#333333</color>
+    <color name="btn_icon_tint">#FFFFFF</color>
+    <color name="text_main">#FFFFFF</color>
+    <color name="hint_text">#AAAAAA</color>
+    <color name="background_light">#121212</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="btn_icon">#FFFFFF</color>
+    <color name="command_text">#FFFFFF</color>
+    <color name="purple_200">#BB86FC</color>
+    <color name="purple_700">#3700B3</color>
+    <color name="teal_200">#03DAC5</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_700">#616161</color>
+    <color name="text_secondary">#B0BEC5</color>
+</resources>

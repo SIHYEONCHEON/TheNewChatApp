@@ -8,7 +8,27 @@
         <item name="colorPrimaryVariant">#90D7F2</item> <!-- 더 진한 보조 색상 (임의 추천) -->
         <item name="colorOnPrimary">#000000</item> <!-- 연한 배경이므로 글씨는 검정색 -->
 
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <item name="colorControlHighlight">@color/gray_300</item>
+
+        <item name="android:statusBarColor" tools:targetApi="l">@color/purple_700</item>
+
+        <!-- 배경 및 텍스트 -->
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="android:textColor">@color/text_main</item>
+
+        <!-- 버튼 커스텀 스타일 (일반 Button만 해당됨) -->
+        <item name="buttonStyle">@style/CustomButton</item>
+        <item name="android:textColorHint">@color/hint_text</item>
+
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+
+    </style>
+        <style name="Theme.NewChatApp" parent="Base.Theme.NewChatApp">
+        <item name="backgroundTint">@color/btn_background</item>
+        <item name="android:textColor">@color/btn_text</item>
     </style>
 
-    <style name="Theme.NewChatApp" parent="Base.Theme.NewChatApp" />
 </resources>
