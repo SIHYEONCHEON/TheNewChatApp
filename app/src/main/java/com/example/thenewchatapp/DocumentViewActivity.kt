@@ -5,6 +5,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import com.example.thenewchatapp.MainActivity.Companion.prefs
 import java.io.File
 
 class DocumentViewActivity : AppCompatActivity() {
@@ -14,6 +16,11 @@ class DocumentViewActivity : AppCompatActivity() {
     private var fileName: String? = null  // 전달받은 파일명 저장용
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_document_view)
 

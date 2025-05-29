@@ -53,15 +53,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // ✅ 전역 prefs 설정 및 테마 적용
-        prefs = getSharedPreferences("settings", MODE_PRIVATE)
-        val isDarkMode = prefs.getBoolean("dark_mode", false)
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-        )
 
         textViewContent = findViewById(R.id.textViewContent)
         titleEditText = findViewById(R.id.titleEditText)
@@ -127,7 +125,7 @@ class MainActivity : AppCompatActivity() {
         btnVoice.setOnClickListener {
             Toast.makeText(
                 this,  // Activity 자체를 Context로 사용
-                "음성 인식 기능은 추후 추가됩니다.",
+                "음성 인식이 시작됩니다.",
                 Toast.LENGTH_SHORT
             ).show()
         }

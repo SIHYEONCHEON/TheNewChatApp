@@ -29,6 +29,10 @@ import org.json.JSONObject
 import androidx.activity.viewModels
 import android.widget.RelativeLayout
 import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatDelegate
+import com.example.thenewchatapp.MainActivity.Companion.prefs
+import android.graphics.Rect
+import android.widget.Toast
 
 class ChatActivity : AppCompatActivity() {
 
@@ -83,6 +87,11 @@ class ChatActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(R.layout.activity_chat)
@@ -119,17 +128,6 @@ class ChatActivity : AppCompatActivity() {
         // EasyCommand 리스트 기본 숨김
         recyclerCategory.visibility = View.GONE
         recyclerEntry.visibility   = View.GONE
-
-        // EditText에 포커스 생길 때만 EasyCommand 보이기
-        messageEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                recyclerCategory.visibility = View.VISIBLE
-                recyclerEntry.visibility   = View.VISIBLE
-            } else {
-                recyclerCategory.visibility = View.GONE
-                recyclerEntry.visibility   = View.GONE
-            }
-        }
 
         // 상단 EasyCommand 카테고리
         recyclerCategory.layoutManager =
@@ -201,16 +199,7 @@ class ChatActivity : AppCompatActivity() {
             updateEntryList()
         }
 
-        // 2) 루트 레이아웃 터치 시 포커스 해제
-        mainView.setOnTouchListener { v: View, event: MotionEvent ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                v.performClick()              // ← 클릭 처리(접근성용)
-            }
-            messageEditText.clearFocus()
-            false
-        }
-
-        // **1. 포커스 해제 시 숨김 (이미 구현)**
+        //   **1. 포커스 해제 시 숨김 (이미 구현)**
         messageEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 recyclerCategory.visibility = View.VISIBLE
@@ -313,6 +302,11 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         }
+
+        btnVoice.setOnClickListener {
+            Toast.makeText(this, "음성 인식이 시작됩니다.", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun externalReply(sentMsg: String): String = "Reply to: $sentMsg"
@@ -499,5 +493,22 @@ class ChatActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (ev.action == MotionEvent.ACTION_DOWN) {
+            // ▶ 터치 위치 계산
+            val x = ev.rawX.toInt()
+            val y = ev.rawY.toInt()
+            // EditText, 카테고리, 엔트리 영역 Rect
+            val editRect = Rect().apply { messageEditText.getGlobalVisibleRect(this) }
+            val catRect  = Rect().apply { recyclerCategory.getGlobalVisibleRect(this) }
+            val entRect  = Rect().apply { recyclerEntry.getGlobalVisibleRect(this) }
+            // 이 영역들 외부 클릭 시에만 포커스 해제
+            if (!editRect.contains(x, y) && !catRect.contains(x, y) && !entRect.contains(x, y)) {
+                currentFocus?.clearFocus()
+                }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }

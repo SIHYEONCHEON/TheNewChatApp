@@ -1,5 +1,6 @@
 package com.example.thenewchatapp
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,8 +11,10 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import com.example.thenewchatapp.MainActivity.Companion.prefs
 
 class CommandDetailFragment : DialogFragment() {
 

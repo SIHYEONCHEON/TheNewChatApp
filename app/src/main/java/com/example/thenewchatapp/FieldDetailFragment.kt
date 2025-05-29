@@ -8,10 +8,11 @@ import android.view.*
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
-import android.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import android.view.Gravity
 
 class FieldDetailFragment : Fragment(R.layout.fragment_field_detail) {
 
@@ -19,10 +20,8 @@ class FieldDetailFragment : Fragment(R.layout.fragment_field_detail) {
     private lateinit var editTextContent: EditText
     private lateinit var btnVoice: ImageButton
     private lateinit var btnPlus: ImageButton
-    private lateinit var btnDropdown: ImageButton
     private val viewModel: FieldViewModel by activityViewModels()
     private lateinit var fragmentContainer: FrameLayout
-    private lateinit var backButton: ImageButton
 
     // arguments 로 넘어온 필드 제목/내용
     private var titleArg: String = ""
@@ -56,55 +55,18 @@ class FieldDetailFragment : Fragment(R.layout.fragment_field_detail) {
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
 
         editTextTitle   = view.findViewById(R.id.editTextTitle)
         editTextContent = view.findViewById(R.id.editTextContent)
-        btnVoice        = view.findViewById(R.id.detailBtnVoice)
-        btnPlus         = view.findViewById(R.id.detailBtnPlus)
-        btnDropdown     = view.findViewById(R.id.btnFieldDropdown)
+        btnVoice        = view.findViewById(R.id.btnVoice)
+        btnPlus         = view.findViewById(R.id.btnPlus)
         fragmentContainer = view.findViewById(R.id.fragmentContainer)
-        backButton = view.findViewById(R.id.backButton)
 
         // 제목/내용 초기화
         editTextTitle.setText(titleArg)
         editTextContent.setText(contentArg)
-
-        // backButton 뷰 찾기 (Fragment 안에서는 view.findViewById)
-        val backButton = view.findViewById<ImageButton>(R.id.backButton)
-        backButton.setOnClickListener {
-            // 이전 화면으로 돌아가기
-            requireActivity().finish()
-            // 또는 requireActivity().onBackPressed()
-        }
-
-        // ② 드롭다운 메뉴: ViewModel 동기화 제목 사용
-        btnDropdown.setOnClickListener { anchor ->
-            PopupMenu(requireContext(), anchor).apply {
-                fieldKeys.forEach { key ->
-                    menu.add(viewModel.getTitle(key))
-                }
-                setOnMenuItemClickListener { item ->
-                    val selectedLabel = item.title.toString()
-                    val key = fieldKeys.first { viewModel.getTitle(it) == selectedLabel }
-
-                    // ③ 현재 입력 내용 저장
-                    viewModel.setContent(titleArg, editTextContent.text.toString())
-
-                    // ④ 선택된 필드로 재진입
-                    val frag = newInstance(
-                        key,
-                        viewModel.getContent(key)
-                    )
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, frag)
-                        .addToBackStack(null)
-                        .commit()
-                    true
-                }
-                show()
-            }
-        }
 
         // 2) 제목 초기화: ViewModel에 저장된 값이 있으면 그걸, 없으면 fieldKey 그대로
         val initialTitle = viewModel.getTitle(titleArg).ifEmpty { titleArg }
@@ -141,10 +103,13 @@ class FieldDetailFragment : Fragment(R.layout.fragment_field_detail) {
         })
 
         // + 버튼 팝업 (챗봇 / 글 정리)
-        btnPlus.setOnClickListener {
-            PopupMenu(requireContext(), it).apply {
+        btnPlus.setOnClickListener { anchor ->
+            // ▲ Gravity.TOP 지정: 메뉴를 버튼 위로 띄움
+            val popup = PopupMenu(requireContext(), anchor, Gravity.TOP)
+            popup.apply {
                 menu.add("챗봇").setOnMenuItemClickListener {
-                    startActivity(Intent(requireContext(), ChatActivity::class.java))
+                    val intent = Intent(requireActivity(), FieldChatActivity::class.java)
+                    startActivity(intent)
                     true
                 }
                 menu.add("글 정리").setOnMenuItemClickListener { menuItem ->
@@ -157,11 +122,6 @@ class FieldDetailFragment : Fragment(R.layout.fragment_field_detail) {
                 }
                 show()
             }
-        }
-
-        // 음성 버튼 (추후 구현)
-        btnVoice.setOnClickListener {
-            Toast.makeText(requireContext(), "음성 인식 기능은 추후 추가됩니다.", Toast.LENGTH_SHORT).show()
         }
 
         // 포커스 잃으면 제목/내용 저장

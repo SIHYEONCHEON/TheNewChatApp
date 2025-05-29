@@ -48,6 +48,9 @@
         <activity
             android:name=".FieldActivity"
             android:exported="true" />
+        <activity
+            android:name=".FieldChatActivity"
+            android:exported="true"/>
 
     </application>
 

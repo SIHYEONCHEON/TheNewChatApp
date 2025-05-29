@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -14,6 +15,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
@@ -27,6 +29,8 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatDelegate
+import com.example.thenewchatapp.MainActivity.Companion.prefs
 
 class FieldChatActivity : AppCompatActivity() {
 
@@ -41,6 +45,7 @@ class FieldChatActivity : AppCompatActivity() {
     private lateinit var recyclerCategory: RecyclerView
     private lateinit var recyclerEntry: RecyclerView
     private val viewModel: FieldViewModel by viewModels()
+    private lateinit var tvFieldTitle: TextView
 
     private val chatMessages = mutableListOf<ChatMessage>()
     private lateinit var chatAdapter: ChatAdapter
@@ -80,6 +85,11 @@ class FieldChatActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         setContentView(R.layout.activity_chat_field)
@@ -104,6 +114,7 @@ class FieldChatActivity : AppCompatActivity() {
         recyclerCategory= findViewById(R.id.recyclerEasyCommand)
         recyclerEntry   = findViewById(R.id.recyclerCommandEntry)
         btnVoice = findViewById(R.id.btnVoice)
+        tvFieldTitle      = findViewById(R.id.tvFieldTitle)
 
         // ViewModel 기본 제목 초기화 (한 번만)
         viewModel.initTitles(fieldKeys)
@@ -116,6 +127,8 @@ class FieldChatActivity : AppCompatActivity() {
                 }
                 setOnMenuItemClickListener { item ->
                     val selectedLabel = item.title.toString()
+                    // ③ 메뉴에서 고른 레이블(제목) 바로 반영
+                    tvFieldTitle.text = selectedLabel
                     val key = fieldKeys.first { viewModel.getTitle(it) == selectedLabel }
 
                     // ③ 현재 입력 내용 저장
@@ -131,6 +144,10 @@ class FieldChatActivity : AppCompatActivity() {
                 }
                 show()
             }
+        }
+
+        btnVoice.setOnClickListener {
+            Toast.makeText(this, "음성 인식이 시작됩니다.", Toast.LENGTH_SHORT).show()
         }
 
         // **1) ViewModel에 기본 필드명 채우기**
@@ -186,8 +203,11 @@ class FieldChatActivity : AppCompatActivity() {
 
         // ➕ 버튼 팝업 메뉴
         btnPlus.setOnClickListener { anchorView ->
-            PopupMenu(this, anchorView).apply {
+            // ▲ Gravity.TOP 지정: 메뉴를 버튼 위로 띄움
+            val popup = PopupMenu(this, anchorView, Gravity.TOP)
+            popup.apply {
                 menu.add("필드 화면").setOnMenuItemClickListener {
+                    intent = Intent(this@FieldChatActivity, FieldChatActivity::class.java)
                     startActivity(Intent(this@FieldChatActivity, FieldActivity::class.java))
                     true
                 }
@@ -197,6 +217,15 @@ class FieldChatActivity : AppCompatActivity() {
 
         // 초기 엔트리 리스트 세팅
         updateEntryList()
+
+        // ① Intent extras 에서 key를 꺼내고, 없으면 첫 번째 필드 키 사용
+        val keyFromIntent = intent.getStringExtra("field_title")
+        val initialKey = if (keyFromIntent != null && fieldKeys.contains(keyFromIntent))
+            keyFromIntent
+        else
+        fieldKeys.first()
+        // ② ViewModel 에서 “보여줄 제목”(label)을 가져와 표시
+        tvFieldTitle.text = viewModel.getTitle(initialKey)
 
         // **5+7. CommandDetailFragment에서 온 저장 결과 받기**
         supportFragmentManager.setFragmentResultListener(

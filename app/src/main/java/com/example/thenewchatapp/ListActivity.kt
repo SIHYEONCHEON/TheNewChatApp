@@ -3,8 +3,10 @@
 package com.example.thenewchatapp
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -12,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -28,10 +31,18 @@ class ListActivity : AppCompatActivity() {
     private lateinit var bottomBar: LinearLayout
     private lateinit var buttonRename: TextView
     private lateinit var buttonDelete: TextView
+    private lateinit var btnThemeToggle: Button
+    private lateinit var prefs: SharedPreferences
 
     private var isFabOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // ▶ ① 테마 설정 불러와 적용
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
 
@@ -46,6 +57,7 @@ class ListActivity : AppCompatActivity() {
         bottomBar = findViewById(R.id.bottomBar)
         buttonRename = findViewById(R.id.buttonRename)
         buttonDelete = findViewById(R.id.buttonDelete)
+        btnThemeToggle = findViewById(R.id.btnThemeToggle)
 
         val iconMenu = findViewById<ImageView>(R.id.icon_menu)
         val iconSearch = findViewById<ImageView>(R.id.icon_search)
@@ -96,6 +108,19 @@ class ListActivity : AppCompatActivity() {
             if (selected.isNotEmpty()) {
                 showDeleteDialog(selected)
             }
+        }
+        
+        btnThemeToggle.setOnClickListener {
+            val current = AppCompatDelegate.getDefaultNightMode()
+            val next = if (current == AppCompatDelegate.MODE_NIGHT_YES)
+                AppCompatDelegate.MODE_NIGHT_NO
+            else
+                AppCompatDelegate.MODE_NIGHT_YES
+
+            // ▶ ③ 저장 & 적용 & 재시작
+            prefs.edit().putInt("theme_mode", next).apply()
+            AppCompatDelegate.setDefaultNightMode(next)
+            recreate()
         }
     }
 

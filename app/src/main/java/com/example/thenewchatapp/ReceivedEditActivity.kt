@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
+import com.example.thenewchatapp.MainActivity.Companion.prefs
 
 class ReceivedEditActivity : AppCompatActivity() {
 
@@ -14,6 +16,11 @@ class ReceivedEditActivity : AppCompatActivity() {
     private var messagePosition: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        AppCompatDelegate.setDefaultNightMode(
+            prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        )
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_received_edit)
 
