@@ -188,10 +188,7 @@ class FieldChatActivity : AppCompatActivity() {
         btnPlus.setOnClickListener { anchorView ->
             PopupMenu(this, anchorView).apply {
                 menu.add("필드 화면").setOnMenuItemClickListener {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, MainFragment())  // ← 여기
-                        .addToBackStack(null)
-                        .commit()
+                    startActivity(Intent(this@FieldChatActivity, FieldActivity::class.java))
                     true
                 }
                 show()

@@ -69,7 +69,7 @@ class ListActivity : AppCompatActivity() {
 
         fabField.setOnClickListener {
             toggleFabMenu()
-            startActivity(Intent(this, MainFragment::class.java))
+            startActivity(Intent(this, FieldActivity::class.java))
         }
 
         fabWrite.setOnClickListener {

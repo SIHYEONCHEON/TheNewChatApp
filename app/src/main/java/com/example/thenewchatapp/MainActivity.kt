@@ -1,7 +1,7 @@
 /*
  * Project: TheNewChatApp
- * Version: 3.0.0
- * Last updated: 2025-05-24
+ * Version: 3.5.0
+ * Last updated: 2025-05-29
  * Author: SiHyeon Cheon
  *
  * [Description]
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 menu.add("필드 화면").setOnMenuItemClickListener {
-                    startActivity(Intent(this@MainActivity, MainFragment::class.java))
+                    startActivity(Intent(this@MainActivity, FieldActivity::class.java))
                     true
                 }
                 show()

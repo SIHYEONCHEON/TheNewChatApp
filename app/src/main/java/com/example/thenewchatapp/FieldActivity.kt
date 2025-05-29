@@ -2,23 +2,23 @@ package com.example.thenewchatapp
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.fragment.app.activityViewModels
+import kotlin.getValue
+import androidx.activity.viewModels
 
-class MainFragment : Fragment(R.layout.activity_field) {
+class FieldActivity : AppCompatActivity() {
 
     private lateinit var btnPlus: ImageButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var btnVoice: ImageButton
     private lateinit var btnDropdown: ImageButton
-    private val viewModel: FieldViewModel by activityViewModels()
+    private val viewModel: FieldViewModel by viewModels()
     private lateinit var fragmentContainer: FrameLayout
     private lateinit var backButton: ImageButton
 
@@ -39,48 +39,33 @@ class MainFragment : Fragment(R.layout.activity_field) {
         "근거자료","어조","분량, 문체, 금지어 등","추가사항"
     )
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_field)
 
-        btnVoice = view.findViewById(R.id.btnVoice)
-        btnPlus         = view.findViewById(R.id.btnPlus)
-        recyclerView    = view.findViewById(R.id.recyclerView)
-        btnDropdown = view.findViewById(R.id.btnFieldDropdown)
-        fragmentContainer = view.findViewById(R.id.fragmentContainer)
-        backButton = view.findViewById(R.id.backButton)
+        btnVoice = findViewById(R.id.btnVoice)
+        btnPlus         = findViewById(R.id.btnPlus)
+        recyclerView    = findViewById(R.id.recyclerView)
+        btnDropdown = findViewById(R.id.btnFieldDropdown)
+        fragmentContainer = findViewById(R.id.fragmentContainer)
+        backButton = findViewById(R.id.backButton)
 
-        // backButton 뷰 찾기 (Fragment 안에서는 view.findViewById)
-        val backButton = view.findViewById<ImageButton>(R.id.backButton)
-        backButton.setOnClickListener {
-            // 이전 화면으로 돌아가기
-            requireActivity().finish()
-            // 또는 requireActivity().onBackPressed()
-        }
-
-        val recycler = view.findViewById<RecyclerView>(R.id.recyclerView)
-        recycler.layoutManager = LinearLayoutManager(requireContext())
+        val recycler = findViewById<RecyclerView>(R.id.recyclerView)
+        recycler.layoutManager = LinearLayoutManager(this)
 
         // ViewModel 기본 제목 초기화 (한 번만)
         viewModel.initTitles(fieldKeys)
 
         // ② 드롭다운 메뉴: ViewModel 에 저장된 제목(label) 사용
         btnDropdown.setOnClickListener { anchor ->
-            PopupMenu(requireContext(), anchor).apply {
-                // menu에 label(=getTitle) 추가
+            PopupMenu(this@FieldActivity, anchor).apply {
                 fieldKeys.forEach { key ->
                     menu.add(viewModel.getTitle(key))
                 }
                 setOnMenuItemClickListener { item ->
-                    // 선택된 label → 원본 key 찾기
-                    val selectedLabel = item.title.toString()
-                    val key = fieldKeys.first { viewModel.getTitle(it) == selectedLabel }
-
-                    // ③ 상세화면으로 이동, content도 동기화
-                    val frag = FieldDetailFragment.newInstance(
-                        key,
-                        viewModel.getContent(key)
-                    )
-                    parentFragmentManager.beginTransaction()
+                    val key = fieldKeys.first { viewModel.getTitle(it) == item.title }
+                    val frag = FieldDetailFragment.newInstance(key, viewModel.getContent(key))
+                    supportFragmentManager.beginTransaction()
                         .replace(R.id.fragmentContainer, frag)
                         .addToBackStack(null)
                         .commit()
@@ -95,7 +80,7 @@ class MainFragment : Fragment(R.layout.activity_field) {
         viewModel.initTitles(fieldKeys)
 
         // RecyclerView 설정
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(this)
         val fieldAdapter = FieldAdapter(
             fields = fields,
             titleMap   = viewModel.titles.value   ?: emptyMap(),
@@ -106,7 +91,7 @@ class MainFragment : Fragment(R.layout.activity_field) {
                 field.title,
                 viewModel.getContent(field.title)
             )
-            parentFragmentManager.beginTransaction()
+            supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, frag)
                 .addToBackStack(null)
                 .commit()
@@ -114,30 +99,27 @@ class MainFragment : Fragment(R.layout.activity_field) {
         recyclerView.adapter = fieldAdapter
 
         // 2) LiveData 관찰 → 리스트 갱신
-        viewModel.titles.observe(viewLifecycleOwner)   { fieldAdapter.notifyDataSetChanged() }
-        viewModel.contents.observe(viewLifecycleOwner) { fieldAdapter.notifyDataSetChanged() }
-
-
+        viewModel.titles.observe(this@FieldActivity)   { fieldAdapter.notifyDataSetChanged() }
+        viewModel.contents.observe(this@FieldActivity) { fieldAdapter.notifyDataSetChanged() }
 
         // ➕ 버튼 팝업 메뉴
         btnPlus.setOnClickListener {
-            PopupMenu(requireContext(), it).apply {
+            PopupMenu(this@FieldActivity, it).apply {
                 menu.add("챗봇").setOnMenuItemClickListener {
-                    startActivity(Intent(requireContext(), ChatActivity::class.java))
+                    startActivity(Intent(this@FieldActivity, ChatActivity::class.java))
                     true
                 }
                 menu.add("일반 글 화면").setOnMenuItemClickListener {
-                    startActivity(Intent(requireContext(), MainActivity::class.java))
+                    startActivity(Intent(this@FieldActivity, MainActivity::class.java))
                     true
                 }
                 show()
             }
-
         }
 
         // 음성 버튼 (추후 구현)
         btnVoice.setOnClickListener {
-            Toast.makeText(requireContext(), "음성 인식 기능은 추후 추가됩니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "음성 인식 기능은 추후 추가됩니다.", Toast.LENGTH_SHORT).show()
         }
 
     }

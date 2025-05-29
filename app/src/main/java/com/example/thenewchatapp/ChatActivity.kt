@@ -27,6 +27,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import androidx.activity.viewModels
+import android.widget.RelativeLayout
 import android.widget.FrameLayout
 
 class ChatActivity : AppCompatActivity() {
@@ -41,7 +42,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var recyclerCategory: RecyclerView
     private lateinit var recyclerEntry: RecyclerView
     private val viewModel: FieldViewModel by viewModels()
-    private lateinit var chatContainer: FrameLayout
+    private lateinit var chatContainer: RelativeLayout
     private lateinit var fragmentContainer: FrameLayout
 
     private val chatMessages = mutableListOf<ChatMessage>()
@@ -170,14 +171,7 @@ class ChatActivity : AppCompatActivity() {
                     true
                 }
                 menu.add("필드 화면").setOnMenuItemClickListener {
-                    // 채팅 UI 숨기고
-                    chatContainer.visibility     = View.GONE
-                    // 필드 화면 보이기
-                    fragmentContainer.visibility = View.VISIBLE
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragmentContainer, MainFragment())
-                        .addToBackStack(null)
-                        .commit()
+                    startActivity(Intent(this@ChatActivity, FieldActivity::class.java))
                     true
                 }
                 show()

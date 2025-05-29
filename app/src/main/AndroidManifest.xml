@@ -45,6 +45,10 @@
             android:name=".ChatActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".FieldActivity"
+            android:exported="true" />
+
     </application>
 
 </manifest>
